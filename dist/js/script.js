@@ -86,6 +86,7 @@ const select = {
 
   class Product {
     constructor(id, data) {
+
       const thisProduct = this;
       thisProduct.id = id;
       thisProduct.data = data;
@@ -95,13 +96,10 @@ const select = {
       thisProduct.initOrderForm();
       thisProduct.initAmountWidget();
       thisProduct.processOrder();
-
-
-
-      console.log('new Product:', thisProduct);
     }
 
     renderInMenu() {
+
       const thisProduct = this;
 
       /* generate HTML based on template */
@@ -118,6 +116,7 @@ const select = {
     }
 
     getElements() {
+
       const thisProduct = this;
 
       thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
@@ -133,18 +132,16 @@ const select = {
     }
 
     initAmountWidget() {
+
       const thisProduct = this;
 
-      console.log('this', this);
-
       thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem, this);
-
-      console.log('initAmountWidget.amountWidgetElem', thisProduct.amountWidgetElem);
 
       thisProduct.amountWidgetElem.addEventListener('updated', thisProduct.processOrder());
     }
 
     initAccordion() {
+
       const thisProduct = this;
 
         /* START: add event listener to clickable trigger on event click*/
@@ -166,6 +163,7 @@ const select = {
     }
 
     initOrderForm() {
+
       const thisProduct = this;
 
       thisProduct.form.addEventListener('submit', function(event){
@@ -201,8 +199,9 @@ const select = {
     }
 
     processOrder() {
+
       const thisProduct = this;
-      console.log('processOrder', thisProduct);
+
       const formData = utils.serializeFormToObject(thisProduct.form);
 
       // set price to default price
@@ -253,7 +252,7 @@ const select = {
       }
       // update calculated price in the HTML
 
-      console.log('thisProduct', thisProduct);
+      thisProduct.priceSingle = price;
 
       if(thisProduct.amountWidget === undefined) {
         price *= thisProduct.amountWidgetElem.value;
@@ -261,17 +260,18 @@ const select = {
         price *= thisProduct.amountWidget.value;
       }
 
-      thisProduct.priceSingle = price;
       thisProduct.priceElem.innerHTML = price;
     }
 
     addToCart() {
+
       const thisProduct = this;
 
       app.cart.add(thisProduct.prepareCartProduct());
     }
 
     prepareCartProduct() {
+
       const thisProduct = this;
 
       const productSummary = {
@@ -283,12 +283,11 @@ const select = {
         params: thisProduct.prepareCartProductParams(),
       };
 
-      console.log('prepareCartProduct.productSummary', productSummary);
-
       return productSummary;
     }
 
     prepareCartProductParams() {
+
       const thisProduct = this;
       const formData = utils.serializeFormToObject(thisProduct.form);
       const params = {};
@@ -321,6 +320,7 @@ const select = {
 
   class AmountWidget {
     constructor(element, product) {
+
       this.product = product;
       const thisWidget = this;
       thisWidget.getElements(element);
@@ -335,6 +335,7 @@ const select = {
     }
 
     getElements(element) {
+
       const thisWidget = this;
 
       thisWidget.element = element;
@@ -344,14 +345,16 @@ const select = {
     }
 
     setValue(value) {
+
       const thisWidget = this;
+
 
       const newValue = parseInt(value);
 
       /* TODO: Add validation */
       if(thisWidget.value !== newValue && !isNaN(newValue) && newValue >= settings.amountWidget.defaultMin && newValue <= settings.amountWidget.defaultMax) {
         thisWidget.value = newValue;
-        console.log('setValue', thisWidget);
+
         thisWidget.announce();
       }
 
@@ -362,6 +365,7 @@ const select = {
     }
 
     initActions() {
+
       const thisWidget = this;
 
       thisWidget.input.addEventListener('change', (e) => {thisWidget.setValue(e.target.value);});
@@ -378,12 +382,14 @@ const select = {
     }
 
     announce(){
+
       const thisWidget = this;
 
-      const event = new Event('click');
+      const event = new Event('updated', {
+        bubbles: true
+      });
       thisWidget.element.dispatchEvent(event);
 
-      console.log('announce', thisWidget);
     }
 
   }
@@ -391,6 +397,7 @@ const select = {
   class Cart {
 
     constructor(element) {
+
       const thisCart = this;
 
       thisCart.products = [];
@@ -418,6 +425,10 @@ const select = {
       thisCart.dom.toggleTrigger.addEventListener('click', function() {
         thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
       });
+
+      thisCart.dom.productList.addEventListener('updated', function() {
+        thisCart.update();
+      });
     }
 
     add(menuProduct){
@@ -430,6 +441,127 @@ const select = {
       thisCart.element = utils.createDOMFromHTML(generatedHTML);
 
       thisCart.dom.productList.appendChild(thisCart.element);
+
+      thisCart.products.push(new CartProduct(menuProduct, thisCart.element));
+
+      thisCart.update();
+    }
+
+    update() {
+      const thisCart = this;
+
+      const deliveryFee = settings.cart.defaultDeliveryFee;
+
+      let totalNumber = 0;
+      let subtotalPrice = 0;
+
+      for(let product of thisCart.products) {
+         totalNumber += product.amountWidget.value;
+         subtotalPrice += product.priceSingle * product.amountWidget.value;
+
+        //  totalNumber += product.children[0].children[1].value;
+        //  subtotalPrice += parseInt(product.children[1].children[0].children[1].children[0].innerHTML);
+      }
+      if(totalNumber != 0){
+        thisCart.totalPrice = deliveryFee + subtotalPrice;
+      }
+
+      thisCart.dom.wrapper.querySelector('.cart__order-subtotal .cart__order-price-sum').innerHTML = `$ ${subtotalPrice}`;
+      thisCart.dom.wrapper.querySelector('.cart__order-delivery .cart__order-price-sum').innerHTML = `$ ${deliveryFee}`;
+      thisCart.dom.wrapper.querySelector('.cart__order-total .cart__order-price-sum').innerHTML = `$ ${thisCart.totalPrice}`;
+
+      thisCart.dom.wrapper.querySelector('.cart__summary .cart__total-price strong').innerHTML = ` ${thisCart.totalPrice}`;
+      thisCart.dom.wrapper.querySelector('.cart__summary .cart__total-number').innerHTML = `${totalNumber}`;
+    }
+  }
+
+  class CartProduct {
+
+    constructor(menuProduct, element) {
+      const thisCartProduct = this;
+      thisCartProduct.id = menuProduct.id;
+      thisCartProduct.amount = menuProduct.amount;
+      thisCartProduct.name = menuProduct.name;
+      thisCartProduct.price = menuProduct.price;
+      thisCartProduct.priceSingle = menuProduct.priceSingle;
+      thisCartProduct.params = menuProduct.params;
+
+      thisCartProduct.getElements(element);
+      thisCartProduct.initAmountWidget();
+
+    }
+
+    getElements(element) {
+      const thisCartProduct = this;
+      thisCartProduct.dom = {};
+      thisCartProduct.dom.wrapper = element;
+
+      thisCartProduct.dom.amountWidget = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.amountWidget);
+      thisCartProduct.dom.price = thisCartProduct.dom.wrapper.querySelectorAll(select.cartProduct.price);
+      thisCartProduct.dom.edit = thisCartProduct.dom.wrapper.querySelectorAll(select.cartProduct.edit);
+      thisCartProduct.dom.remove = thisCartProduct.dom.wrapper.querySelectorAll(select.cartProduct.remove);
+    }
+
+    initAmountWidget() {
+
+      const thisCartProduct = this;
+
+      thisCartProduct.amountWidget = new AmountWidget(thisCartProduct.dom.amountWidget, this);
+
+      thisCartProduct.dom.amountWidget.addEventListener('updated', thisCartProduct.processOrder());
+    }
+
+    processOrder() {
+
+      const thisCartProduct = this;
+
+      const formData = utils.serializeFormToObject(thisCartProduct.form);
+
+      // set price to default price
+      let price = thisCartProduct.price;
+
+      // for every category (param)
+      for(let paramId in thisCartProduct.params) {
+        //determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'...}
+        const param = thisCartProduct.params[paramId];
+
+        // for every option in this category
+        for(let optionId in param.options) {
+
+          // TUTAJ DODAJ KOD PIZZY
+
+          // determine option value, e.g. optionId = 'olives', option = { label: 'Olives', price: 2, default: true }
+          const option = param.options[optionId];
+
+
+          const optionSelected = formData[paramId] && formData[paramId].includes(optionId);
+          // check if there is param with a name of paramId in formData and if it includes optionId
+          if(optionSelected) {
+            // check if the option is not default
+            if(!option.default) {
+              // add option price to price variable
+              price = price + option.price;
+            }
+          } else {
+            // check if the option is default
+            if(option.default) {
+              // reduce price variable
+              price = price - option.price;
+            }
+          }
+        }
+      }
+      // update calculated price in the HTML
+
+
+      if(thisCartProduct.amountWidget === undefined) {
+        price = thisCartProduct.priceSingle * parseInt(thisCartProduct.dom.amountWidget.children[1].value);
+      } else {
+        price = thisCartProduct.priceSingle * thisCartProduct.amountWidget.value;
+      }
+
+      thisCartProduct.price = price;
+      thisCartProduct.dom.price[0].innerHTML = price;
 
     }
   }
