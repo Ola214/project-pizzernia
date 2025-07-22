@@ -35,13 +35,15 @@ const select = {
       },
     },
       // CODE ADDED START
+
+
     cart: {
       productList: '.cart__order-summary',
       toggleTrigger: '.cart__summary',
       totalNumber: `.cart__total-number`,
-      totalPrice: '.cart__total-price strong, .cart__order-total .cart__order-price-sum strong',
-      subtotalPrice: '.cart__order-subtotal .cart__order-price-sum strong',
-      deliveryFee: '.cart__order-delivery .cart__order-price-sum strong',
+      totalPrice: '.cart__total-price strong, .cart__order-total .cart__order-price-sum',
+      subtotalPrice: 'li.cart__order-subtotal > span.cart__order-price-sum',
+      deliveryFee: '.cart__order-delivery .cart__order-price-sum',
       form: '.cart__order',
       formSubmit: '.cart__order [type="submit"]',
       phone: '[name="phone"]',
@@ -422,6 +424,14 @@ const select = {
 
       thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
       thisCart.dom.productList = thisCart.dom.wrapper.querySelector(select.cart.productList);
+      thisCart.dom.form = thisCart.dom.wrapper.querySelector(select.cart.form);
+
+      thisCart.dom.address = thisCart.dom.wrapper.querySelector(select.cart.address);
+      thisCart.dom.phone = thisCart.dom.wrapper.querySelector(select.cart.phone);
+      thisCart.dom.totalPrice = thisCart.dom.wrapper.querySelector(select.cart.totalPrice);
+      thisCart.dom.subtotalPrice = thisCart.dom.wrapper.querySelector(select.cart.subtotalPrice);
+      thisCart.dom.totalNumber = thisCart.dom.wrapper.querySelector(select.cart.totalNumber);
+      thisCart.dom.deliveryFee = thisCart.dom.wrapper.querySelector(select.cart.deliveryFee);
     }
 
     initActions() {
@@ -438,12 +448,49 @@ const select = {
       thisCart.dom.productList.addEventListener('remove', (event) => {
         thisCart.remove(event.detail.cartProduct);
       });
+
+      thisCart.dom.form.addEventListener("submit", (event) => {
+        event.preventDefault(); // wysyłka formularza nie będzie przeładowywała strony
+        thisCart.sendOrder();
+      })
+    }
+
+    sendOrder() {
+      const thisCart = this;
+      const url = settings.db.url + '/' + settings.db.orders;
+
+      const payload = {
+        address: thisCart.dom.address.value,
+        phone: thisCart.dom.phone.value,
+        totalPrice: thisCart.dom.totalPrice.innerHTML,
+        subtotalPrice: thisCart.dom.subtotalPrice.innerHTML,
+        totalNumber: thisCart.dom.totalNumber.innerHTML,
+        deliveryFee: thisCart.dom.deliveryFee.innerHTML,
+        products: []
+      };
+
+      for(let prod of thisCart.products) {
+        payload.products.push(prod.getData());
+      }
+
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      };
+
+      fetch(url, options)
+      .then(function(response){
+        return response.json();
+      }).then(function(parsedResponse){
+        console.log('parsedResponse', parsedResponse);
+      });
     }
 
     remove(cartProduct) {
 
-      console.log('Cart.cartProduct', cartProduct);
-      console.log('Cart.this', this);
 
       cartProduct.dom.wrapper.remove();
 
@@ -459,17 +506,16 @@ const select = {
         }
       }
 
-      console.log('Cart.remove', thisCart);
 
       thisCart.update();
     }
 
     add(menuProduct){
-      console.log('Cart.add.menuProduct', menuProduct);
       const thisCart = this;
 
       /* generate HTML based on template */
       const generatedHTML = templates.cartProduct(menuProduct);
+
 
       /* create element using utils.createelementFromHHTML */
       thisCart.element = utils.createDOMFromHTML(generatedHTML);
@@ -489,10 +535,10 @@ const select = {
       let totalNumber = 0;
       let subtotalPrice = 0;
 
-      console.log('update.thisCart', thisCart);
+
 
       for(let product of thisCart.products) {
-         console.log('Cart.update', product);
+
          totalNumber += product.amountWidget.value;
          subtotalPrice += product.priceSingle * product.amountWidget.value;
 
@@ -514,7 +560,6 @@ const select = {
       thisCart.dom.wrapper.querySelector('.cart__summary .cart__total-price strong').innerHTML = ` ${thisCart.totalPrice}`;
       thisCart.dom.wrapper.querySelector('.cart__summary .cart__total-number').innerHTML = `${totalNumber}`;
 
-      console.log('Cart.update.thisCart', thisCart);
     }
 
 
@@ -642,6 +687,20 @@ const select = {
       });
 
       thisCartProduct.dom.wrapper.dispatchEvent(event);
+    }
+
+    getData() {
+      const thisCP = this;
+
+      const thisCartProduct = {};
+      thisCartProduct.id = thisCP.id;
+      thisCartProduct.amount = thisCP.amountWidget.value;
+      thisCartProduct.price = thisCP.price;
+      thisCartProduct.priceSingle = thisCP.priceSingle;
+      thisCartProduct.name = thisCP.name;
+      thisCartProduct.params = thisCP.params;
+
+      return thisCartProduct;
     }
   }
 

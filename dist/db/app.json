@@ -201,5 +201,41 @@
         }
       }
     }
+  ],
+  "orders": [
+    {
+      "address": "Nowogródzka, 3/9",
+      "phone": "730692051",
+      "totalPrice": " 56",
+      "subtotalPrice": "$ 36",
+      "totalNumber": "4",
+      "deliveryFee": "$ 20",
+      "products": [
+        {
+          "id": "cake",
+          "amount": 2,
+          "price": 18,
+          "priceSingle": 9,
+          "name": "Zio Stefano's Doughnut",
+          "params": {}
+        },
+        {
+          "id": "breakfast",
+          "amount": 2,
+          "price": 18,
+          "priceSingle": 9,
+          "name": "Zia Giulia's Breakfast",
+          "params": {
+            "coffee": {
+              "label": "Coffee type",
+              "options": {
+                "latte": "Latte"
+              }
+            }
+          }
+        }
+      ],
+      "id": 1
+    }
   ]
 }
