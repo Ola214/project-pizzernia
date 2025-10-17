@@ -1,6 +1,6 @@
-import { select, } from './settings.js';
-import utils from './utils.js';
-import AmountWidget from './components/AmountWidget.js';
+import { select, } from '../settings.js';
+import utils from '../utils.js';
+import AmountWidget from './AmountWidget.js';
 
 
   class CartProduct {

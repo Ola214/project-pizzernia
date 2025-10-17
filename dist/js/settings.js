@@ -1,8 +1,8 @@
  export const select = {
-  templateOf: {
-    menuProduct: "#template-menu-product",
-    cartProduct: '#template-cart-product', // CODE ADDED
-    bookingWidget: '#template-booking-widget',
+    templateOf: {
+      menuProduct: "#template-menu-product",
+      cartProduct: '#template-cart-product', // CODE ADDED
+      bookingWidget: '#template-booking-widget',
     },
     containerOf: {
       menu: '#product-list',
