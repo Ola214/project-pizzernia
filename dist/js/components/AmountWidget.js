@@ -42,7 +42,7 @@
 
       thisWidget.input.value = thisWidget.value;
 
-      this.product.processOrder();
+      this.product.process();
 
     }
 

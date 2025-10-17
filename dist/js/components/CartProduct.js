@@ -37,10 +37,10 @@ import AmountWidget from './AmountWidget.js';
 
       thisCartProduct.amountWidget = new AmountWidget(thisCartProduct.dom.amountWidget, this);
 
-      thisCartProduct.dom.amountWidget.addEventListener('updated', thisCartProduct.processOrder());
+      thisCartProduct.dom.amountWidget.addEventListener('updated', thisCartProduct.process());
     }
 
-    processOrder() {
+   process() {
 
       const thisCartProduct = this;
 

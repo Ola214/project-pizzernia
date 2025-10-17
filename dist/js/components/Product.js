@@ -13,7 +13,7 @@ class Product {
         thisProduct.initAccordion();
         thisProduct.initOrderForm();
         thisProduct.initAmountWidget();
-        thisProduct.processOrder();
+        thisProduct.process();
     }
 
     renderInMenu() {
@@ -55,7 +55,7 @@ class Product {
 
         thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem, this);
 
-        thisProduct.amountWidgetElem.addEventListener('updated', thisProduct.processOrder());
+        thisProduct.amountWidgetElem.addEventListener('updated', thisProduct.process());
     }
 
     initAccordion() {
@@ -86,37 +86,37 @@ class Product {
 
         thisProduct.form.addEventListener('submit', function (event) {
             event.preventDefault(); //blokujemy domyślną akcję - wysyłanie formularza z przeładowaniem strony oraz zmianę adresu strony po kliknięciu w link
-            thisProduct.processOrder();
+            thisProduct.process();
         });
 
         for (let input of thisProduct.formInputs) {
             input.addEventListener('change', function () {
-                thisProduct.processOrder();
+                thisProduct.process();
             });
         }
 
         for (let input of thisProduct.formBtnsMore) {
             input.addEventListener('click', function () {
                 //thisProduct.amountWidget.value = (parseInt(thisProduct.amountWidget.value);
-                thisProduct.processOrder();
+                thisProduct.process();
             });
         }
 
         for (let input of thisProduct.formBtnsLess) {
             input.addEventListener('click', function () {
                 //thisProduct.amountWidget.value = (parseInt(thisProduct.amountWidget.value - 1));
-                thisProduct.processOrder();
+                thisProduct.process();
             });
         }
 
         thisProduct.cartButton.addEventListener('click', function (event) {
             event.preventDefault();
-            thisProduct.processOrder();
+            thisProduct.process();
             thisProduct.addToCart();
         });
     }
 
-    processOrder() {
+   process() {
 
         const thisProduct = this;
 

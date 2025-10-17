@@ -41,8 +41,8 @@
         output: '.output',
       },
       booking: {
-        peopleAmount: '.people-amount',
-        hoursAmount: '.hours-amount',
+        peopleAmount: 'people-amount',
+        hoursAmount: 'hours-amount',
         tables: '.floor-plan .table',
       },
       nav: {
