@@ -198,3 +198,13 @@
     @include flex(row, flex-start, space-between);
     margin: ($base-size * 4) auto;
   }
+
+.table.selected {
+  background-color: rgba(0, 200, 0, 0.5);
+  border: 2px solid green;
+}
+
+.table.booked {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
