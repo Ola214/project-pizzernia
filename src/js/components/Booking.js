@@ -1,11 +1,12 @@
-import { select, settings, templates } from '../settings.js';
+import { templates, select, settings } from '../settings.js';
 import AmountWidget from './AmountWidget.js';
 
 class Booking {
   constructor(wrapper) {
     const thisBooking = this;
 
-    thisBooking.selectedTable = null; // wybrany stolik
+    thisBooking.selectedTable = null;      // wybrany stolik
+    thisBooking.bookedTables = [];         // tablica zajętych stolików
 
     thisBooking.getElements(wrapper);
     thisBooking.render();
@@ -14,7 +15,6 @@ class Booking {
 
   getElements(wrapper) {
     const thisBooking = this;
-
     thisBooking.dom = {};
     thisBooking.dom.wrapper = wrapper;
   }
@@ -22,33 +22,42 @@ class Booking {
   render() {
     const thisBooking = this;
 
-    // render szablonu Handlebars do wrappera
+    // wstaw szablon Handlebars
     thisBooking.dom.wrapper.innerHTML = templates.bookingWidget();
 
-    // teraz możemy pobrać elementy z DOM
+    // pobierz elementy z DOM
     thisBooking.dom.datePicker = thisBooking.dom.wrapper.querySelector(select.widgets.datePicker.input);
     thisBooking.dom.hourPicker = thisBooking.dom.wrapper.querySelector(select.widgets.hourPicker.input);
-
     thisBooking.dom.peopleAmount = thisBooking.dom.wrapper.querySelector(select.widgets.booking.peopleAmount);
     thisBooking.dom.hoursAmount = thisBooking.dom.wrapper.querySelector(select.widgets.booking.hoursAmount);
-
     thisBooking.dom.floorPlan = thisBooking.dom.wrapper.querySelector('.floor-plan');
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.widgets.booking.tables);
     thisBooking.dom.starters = thisBooking.dom.wrapper.querySelectorAll('input[name="starter"]');
-
     thisBooking.dom.form = thisBooking.dom.wrapper.querySelector('form');
+
+    // ustawienie min i max daty (dzisiaj do +14 dni)
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 14);
+
+    thisBooking.dom.datePicker.min = today.toISOString().split('T')[0];
+    thisBooking.dom.datePicker.max = maxDate.toISOString().split('T')[0];
+    thisBooking.dom.datePicker.value = today.toISOString().split('T')[0];
+
+    // pierwsze pobranie zajętych stolików
+    thisBooking.getBookings();
   }
 
   initWidgets() {
     const thisBooking = this;
 
-    // inicjalizacja AmountWidget
+    // AmountWidget dla osób i godzin
     thisBooking.peopleWidget = new AmountWidget(thisBooking.dom.peopleAmount, thisBooking);
     thisBooking.hoursWidget = new AmountWidget(thisBooking.dom.hoursAmount, thisBooking);
 
     // reset stolika przy zmianie parametrów
-    thisBooking.dom.datePicker.addEventListener('change', () => thisBooking.updateDOM());
-    thisBooking.dom.hourPicker.addEventListener('change', () => thisBooking.updateDOM());
+    thisBooking.dom.datePicker.addEventListener('change', () => thisBooking.getBookings());
+    thisBooking.dom.hourPicker.addEventListener('change', () => thisBooking.getBookings());
     thisBooking.dom.peopleAmount.addEventListener('updated', () => thisBooking.updateDOM());
     thisBooking.dom.hoursAmount.addEventListener('updated', () => thisBooking.updateDOM());
 
@@ -69,15 +78,22 @@ class Booking {
   updateDOM() {
     const thisBooking = this;
 
-    // reset wyboru stolika
+    // reset wybranego stolika
     if (thisBooking.selectedTable) {
       const selected = thisBooking.dom.floorPlan.querySelector('.table.selected');
       if (selected) selected.classList.remove('selected');
       thisBooking.selectedTable = null;
     }
 
-    // tutaj można dodać aktualizację dostępności stolików (klasa booked)
-    // np. thisBooking.dom.tables.forEach(table => { ... });
+    // oznacz stoliki zajęte
+    thisBooking.dom.tables.forEach(table => {
+      const tableId = parseInt(table.dataset.table);
+      if (thisBooking.bookedTables.includes(tableId)) {
+        table.classList.add('booked');
+      } else {
+        table.classList.remove('booked');
+      }
+    });
   }
 
   initTables(event) {
@@ -85,6 +101,7 @@ class Booking {
     const clicked = event.target.closest('.table');
     if (!clicked) return;
 
+    // stolik zajęty
     if (clicked.classList.contains('booked')) {
       alert('This table is already booked!');
       return;
@@ -104,6 +121,23 @@ class Booking {
     // zaznacz nowy stolik
     clicked.classList.add('selected');
     thisBooking.selectedTable = clicked.dataset.table;
+  }
+
+  getBookings() {
+    const thisBooking = this;
+    const date = thisBooking.dom.datePicker.value;
+    const hour = thisBooking.dom.hourPicker.value;
+
+    // przykład endpointu API (twój backend)
+    const url = `${settings.db.url}/${settings.db.bookings}?date=${date}&hour=${hour}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(bookings => {
+        thisBooking.bookedTables = bookings.map(b => b.table);
+        thisBooking.updateDOM();
+      })
+      .catch(err => console.error('Error fetching bookings:', err));
   }
 
   sendBooking() {
@@ -134,7 +168,7 @@ class Booking {
       .then(parsedResponse => {
         console.log('Booking sent:', parsedResponse);
         alert('Booking confirmed!');
-        thisBooking.updateDOM(); // odśwież dostępność stolików jeśli potrzebne
+        thisBooking.getBookings(); // odśwież dostępność stolików
       })
       .catch(err => console.error('Error sending booking:', err));
   }
