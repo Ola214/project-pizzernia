@@ -293,9 +293,9 @@
            <input type="text" name="date">
          </div>
          <div class="hour-picker range-slider">
-             <div class="output"></div>
              <label class="booking-option-title">Pick a time</label>
            <input type="range" name="hour" value="12" min="12" max="24" step="0.5">
+           <div class="output"></div>
          </div>
        </div>
        <div class="floor-plan">
@@ -349,17 +349,24 @@
    </div>
  </script>
 
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.0/handlebars.min.js"></script>
   <script src="js/utils.js"></script>
+<!-- Globalny rangeslider (UMD) -->
+<script src="https://cdn.jsdelivr.net/npm/rangeslider.js@2.3.3/dist/rangeslider.min.js"></script>
+
+<!-- Twój skrypt modułowy -->
+<script type="module" src="js/app.js"></script>
   <!-- <script src="js/data.js"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/rangeslider.js@2.3.3/dist/rangeslider.min.js"></script>
-  <script src="./vendor/range-slider.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/rangeslider.js@2.3.3/dist/rangeslider.min.js"></script>
   <script src="js/app.js" type="module"></script>
   <!-- <script src="js/settings.js"></script> -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.0/handlebars.min.js"></script>
-  <script type="module" src="js/app.js"></script>
+
+
+
 </body>
 </html>
