@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="./vendor/range-slider.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 </head>
 <body>
@@ -22,6 +23,7 @@
           <h2 class="logo__subtitle">the best homemade Italian food</h2>
         </div>
         <div class="main-nav">
+            <a href="#home">Home</a>
             <a href="#order">Order</a>
             <a href="#booking">Booking</a>
         </div>
@@ -63,6 +65,7 @@
   </header>
 
  <div id="pages">
+   <section id="home" class="page"></section>
    <section id="order">
      <div id="product-list" class="product-list container"></div>
    </section>
@@ -70,6 +73,108 @@
      <div class="booking-wrapper container"></div>
    </section>
  </div>
+
+ <!-- TEMPLATE: Home -->
+  <script id="template-home-page" type="text/x-handlebars-template">
+    <section class="home">
+
+      <!-- TOP BOXES -->
+      <div class="home-top">
+        <div class="home-box home-order" style="background-image:url(images/home/pizza-1.jpg);">
+          <h2>ORDER ONLINE</h2>
+        </div>
+        <div class="home-box home-booking" style="background-image:url(images/home/pizza-2.jpg);">
+          <h2>BOOK A TABLE</h2>
+        </div>
+      </div>
+
+      <!-- OPENING HOURS -->
+      <div class="home-hours">
+        <h2>OPENING HOURS</h2>
+        <p>TUE-SUN, 12PM - 12 AM</p>
+      </div>
+
+      <!-- CAROUSEL -->
+      <div class="home-carousel">
+        <div class="carousel">
+          <div class="carousel-cell active">
+            <img src="images/home/pizza-3.jpg" alt="Pizza">
+            <div class="carousel-text">
+              <p>"Najlepsza pizza w mieście!"</p>
+              <h4>— Anna</h4>
+            </div>
+          </div>
+          <div class="carousel-cell">
+            <img src="images/home/pizza-4.jpg" alt="Pizza">
+            <div class="carousel-text">
+              <p>"Przepyszna skórka i idealne dodatki!"</p>
+              <h4>— Marek</h4>
+            </div>
+          </div>
+          <div class="carousel-cell">
+            <img src="images/home/pizza-5.jpg" alt="Pizza">
+            <div class="carousel-text">
+              <p>"Szybka dostawa i miła obsługa."</p>
+              <h4>— Kasia</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GALLERY -->
+      <div class="home-gallery">
+        <div class="gallery-grid">
+          <div class="gallery-item">
+            <img src="images/home/pizza-4.jpg" alt="pizza">
+            <div class="overlay">
+              <a class="icon" href="#"><i class="fas fa-heart"></i></a>
+              <a class="icon" href="#"><i class="fas fa-share-alt"></i></a>
+            </div>
+          </div>
+          <div class="gallery-item">
+            <img src="images/home/pizza-5.jpg" alt="pizza">
+            <div class="overlay">
+              <a class="icon" href="#"><i class="fas fa-heart"></i></a>
+              <a class="icon" href="#"><i class="fas fa-share-alt"></i></a>
+            </div>
+          </div>
+          <div class="gallery-item">
+            <img src="images/home/pizza-6.jpg" alt="pizza">
+            <div class="overlay">
+              <a class="icon" href="#"><i class="fas fa-heart"></i></a>
+              <a class="icon" href="#"><i class="fas fa-share-alt"></i></a>
+            </div>
+          </div>
+          <div class="gallery-item">
+            <img src="images/home/pizza-7.jpg" alt="pizza">
+            <div class="overlay">
+              <a class="icon" href="#"><i class="fas fa-heart"></i></a>
+              <a class="icon" href="#"><i class="fas fa-share-alt"></i></a>
+            </div>
+          </div>
+          <div class="gallery-item">
+            <img src="images/home/pizza-8.jpg" alt="pizza">
+            <div class="overlay">
+              <a class="icon" href="#"><i class="fas fa-heart"></i></a>
+              <a class="icon" href="#"><i class="fas fa-share-alt"></i></a>
+            </div>
+          </div>
+          <div class="gallery-item">
+            <img src="images/home/pizza-9.jpg" alt="pizza">
+            <div class="overlay">
+              <a class="icon" href="#"><i class="fas fa-heart"></i></a>
+              <a class="icon" href="#"><i class="fas fa-share-alt"></i></a>
+            </div>
+          </div>
+        </div>
+        <div id="insta-link">
+          <a href="">View more on Instagram</a>
+        </div>
+      </div>
+
+    </section>
+  </script>
+
 
   <script id="template-cart-product" type="text/x-handlebars-template">
     <li>
@@ -253,6 +358,8 @@
   <script src="./vendor/range-slider.min.js"></script>
   <script src="js/app.js" type="module"></script>
   <!-- <script src="js/settings.js"></script> -->
-
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.0/handlebars.min.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
