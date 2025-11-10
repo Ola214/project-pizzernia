@@ -5,8 +5,8 @@ class Booking {
   constructor(wrapper) {
     const thisBooking = this;
 
-    thisBooking.selectedTable = null; // wybrany stolik
-    thisBooking.bookedTables = []; // tablica zajętych stolików
+    thisBooking.selectedTable = null;      // wybrany stolik
+    thisBooking.bookedTables = [];         // tablica zajętych stolików
 
     thisBooking.getElements(wrapper);
     thisBooking.render();
@@ -26,22 +26,12 @@ class Booking {
     thisBooking.dom.wrapper.innerHTML = templates.bookingWidget();
 
     // pobierz elementy z DOM
-    thisBooking.dom.datePicker = thisBooking.dom.wrapper.querySelector(
-      select.widgets.datePicker.input
-    );
-    thisBooking.dom.hourPicker = thisBooking.dom.wrapper.querySelector(
-      select.widgets.hourPicker.input
-    );
-    thisBooking.dom.peopleAmount = thisBooking.dom.wrapper.querySelector(
-      select.widgets.booking.peopleAmount
-    );
-    thisBooking.dom.hoursAmount = thisBooking.dom.wrapper.querySelector(
-      select.widgets.booking.hoursAmount
-    );
+    thisBooking.dom.datePicker = thisBooking.dom.wrapper.querySelector(select.widgets.datePicker.input);
+    thisBooking.dom.hourPicker = thisBooking.dom.wrapper.querySelector(select.widgets.hourPicker.input);
+    thisBooking.dom.peopleAmount = thisBooking.dom.wrapper.querySelector(select.widgets.booking.peopleAmount);
+    thisBooking.dom.hoursAmount = thisBooking.dom.wrapper.querySelector(select.widgets.booking.hoursAmount);
     thisBooking.dom.floorPlan = thisBooking.dom.wrapper.querySelector('.floor-plan');
-    thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(
-      select.widgets.booking.tables
-    );
+    thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.widgets.booking.tables);
     thisBooking.dom.starters = thisBooking.dom.wrapper.querySelectorAll('input[name="starter"]');
     thisBooking.dom.form = thisBooking.dom.wrapper.querySelector('form');
 
@@ -53,6 +43,10 @@ class Booking {
     thisBooking.dom.datePicker.min = today.toISOString().split('T')[0];
     thisBooking.dom.datePicker.max = maxDate.toISOString().split('T')[0];
     thisBooking.dom.datePicker.value = today.toISOString().split('T')[0];
+
+    thisBooking.dom.datePicker.type = 'date';
+    thisBooking.dom.datePicker.placeholder = 'Pick a date';
+    thisBooking.dom.datePicker.classList.add('calendar-input');
 
     // pierwsze pobranie zajętych stolików
     thisBooking.getBookings();
@@ -84,38 +78,28 @@ class Booking {
       thisBooking.sendBooking();
     });
 
-    // --- natywny suwak czasu ---
+    // rangeslider.js dla hourPicker
     const hourInput = thisBooking.dom.hourPicker;
     const output = thisBooking.dom.wrapper.querySelector('.hour-picker .output');
 
-    if (hourInput && output) {
       const updateOutput = (value) => {
-        const v = parseFloat(value);
-        const hours = Math.floor(v);
-        const minutes = v % 1 === 0 ? '00' : '30';
+        const hours = Math.floor(value);
+        const minutes = value % 1 === 0 ? '00' : '30';
         output.textContent = `${hours}:${minutes}`;
       };
 
-      // Ustaw początkową wartość
+      // początkowa wartość
       updateOutput(hourInput.value);
 
-      // Reakcja na przeciąganie suwaka
-      hourInput.addEventListener('input', (e) => {
-        updateOutput(e.target.value);
+      // rangeslider.js
+      window.rangesliderJs.create(hourInput, {
+        polyfill: false,
+        onSlide: (position, value) => updateOutput(value)
       });
 
-      // Reakcja na puszczenie suwaka
-      hourInput.addEventListener('change', (e) => {
-        updateOutput(e.target.value);
-        thisBooking.getBookings();
-      });
-
-      // Aktualizacja po zmianie daty
-      thisBooking.dom.datePicker.addEventListener('change', () => {
-        updateOutput(hourInput.value);
-        thisBooking.getBookings();
-      });
-    }
+      // obsługa zmiany manualnej (np. przez strzałki)
+      hourInput.addEventListener('input', (e) => { console.log("jestem1"); updateOutput(e.target.value)});
+      hourInput.addEventListener('change', (e) =>{ console.log("jestem2"); updateOutput(e.target.value)});
   }
 
   updateDOM() {
@@ -129,7 +113,7 @@ class Booking {
     }
 
     // oznacz stoliki zajęte
-    thisBooking.dom.tables.forEach((table) => {
+    thisBooking.dom.tables.forEach(table => {
       const tableId = parseInt(table.dataset.table);
       if (thisBooking.bookedTables.includes(tableId)) {
         table.classList.add('booked');
@@ -171,15 +155,16 @@ class Booking {
     const date = thisBooking.dom.datePicker.value;
     const hour = thisBooking.dom.hourPicker.value;
 
+    // przykład endpointu API (twój backend)
     const url = `${settings.db.url}/${settings.db.bookings}?date=${date}&hour=${hour}`;
 
     fetch(url)
-      .then((res) => res.json())
-      .then((bookings) => {
-        thisBooking.bookedTables = bookings.map((b) => b.table);
+      .then(res => res.json())
+      .then(bookings => {
+        thisBooking.bookedTables = bookings.map(b => b.table);
         thisBooking.updateDOM();
       })
-      .catch((err) => console.error('Error fetching bookings:', err));
+      .catch(err => console.error('Error fetching bookings:', err));
   }
 
   sendBooking() {
@@ -193,8 +178,8 @@ class Booking {
       duration: thisBooking.hoursWidget.value,
       people: thisBooking.peopleWidget.value,
       starters: Array.from(thisBooking.dom.starters)
-        .filter((input) => input.checked)
-        .map((input) => input.value),
+        .filter(input => input.checked)
+        .map(input => input.value),
       phone: thisBooking.dom.wrapper.querySelector('[name="phone"]').value,
       address: thisBooking.dom.wrapper.querySelector('[name="address"]').value,
     };
@@ -206,13 +191,13 @@ class Booking {
     };
 
     fetch(url, options)
-      .then((res) => res.json())
-      .then((parsedResponse) => {
+      .then(res => res.json())
+      .then(parsedResponse => {
         console.log('Booking sent:', parsedResponse);
         alert('Booking confirmed!');
-        thisBooking.getBookings();
+        thisBooking.getBookings(); // odśwież dostępność stolików
       })
-      .catch((err) => console.error('Error sending booking:', err));
+      .catch(err => console.error('Error sending booking:', err));
   }
 }
 
