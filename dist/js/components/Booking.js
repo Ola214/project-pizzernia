@@ -91,12 +91,6 @@ class Booking {
       // początkowa wartość
       updateOutput(hourInput.value);
 
-      // rangeslider.js
-      window.rangesliderJs.create(hourInput, {
-        polyfill: false,
-        onSlide: (position, value) => updateOutput(value)
-      });
-
       // obsługa zmiany manualnej (np. przez strzałki)
       hourInput.addEventListener('input', (e) => { console.log("jestem1"); updateOutput(e.target.value)});
       hourInput.addEventListener('change', (e) =>{ console.log("jestem2"); updateOutput(e.target.value)});
